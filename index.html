@@ -1,0 +1,889 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Navidad Mágica - Felices Fiestas</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;800;900&family=Great+Vibes&family=Plus+Jakarta+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-dark: #0a060d;
+            --bg-ruby: #1c060a;
+            --ruby-red: #c01525;
+            --ruby-bright: #ff2a3f;
+            --gold-primary: #d4af37;
+            --gold-light: #fff0aa;
+            --gold-glow: rgba(212, 175, 55, 0.5);
+            --glass-bg: rgba(25, 10, 20, 0.65);
+            --glass-border: rgba(212, 175, 55, 0.25);
+            --font-title: 'Cinzel', serif;
+            --font-cursive: 'Great Vibes', cursive;
+            --font-sans: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        body {
+            background: radial-gradient(circle at top center, #2b0810 0%, #0c0408 60%, #050204 100%);
+            color: #f8f9fa;
+            font-family: var(--font-sans);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Canvas de Nieve de Fondo */
+        #snowCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .main-container {
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Tipografías Especiales */
+        .title-gold {
+            font-family: var(--font-title);
+            background: linear-gradient(135deg, #fff3a1 0%, #d4af37 40%, #aa7c11 70%, #ffd700 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 25px rgba(212, 175, 55, 0.3);
+            letter-spacing: 2px;
+        }
+
+        .text-cursive {
+            font-family: var(--font-cursive);
+            color: var(--gold-light);
+            font-size: 2.8rem;
+            text-shadow: 0 0 10px rgba(255, 240, 170, 0.5);
+        }
+
+        /* Tarjetas de Cristal (Glassmorphism) */
+        .glass-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6), inset 0 0 15px rgba(212, 175, 55, 0.05);
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.4s ease;
+        }
+
+        .glass-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.8), 0 0 25px rgba(212, 175, 55, 0.2);
+            border-color: rgba(212, 175, 55, 0.5);
+        }
+
+        /* Sobre Navideño Interactivo */
+        .envelope-wrapper {
+            position: relative;
+            cursor: pointer;
+            perspective: 1000px;
+        }
+
+        .envelope-card {
+            background: linear-gradient(135deg, #1f070b 0%, #3d0912 100%);
+            border: 2px solid var(--gold-primary);
+            border-radius: 20px;
+            padding: 35px 20px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5), inset 0 0 15px rgba(212, 175, 55, 0.15);
+            transition: all 0.4s ease;
+        }
+
+        .envelope-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 15px 35px rgba(212, 175, 55, 0.3), inset 0 0 25px rgba(212, 175, 55, 0.25);
+        }
+
+        .envelope-seal {
+            width: 70px;
+            height: 70px;
+            background: radial-gradient(circle, #ff2a3f 0%, #8b0000 100%);
+            border: 3px solid var(--gold-primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px auto;
+            color: var(--gold-light);
+            font-size: 1.8rem;
+            box-shadow: 0 0 20px rgba(255, 42, 63, 0.6);
+            transition: transform 0.3s ease;
+        }
+
+        .envelope-wrapper:hover .envelope-seal {
+            transform: scale(1.15) rotate(10deg);
+        }
+
+        .letter-modal-body {
+            background: linear-gradient(180deg, #1a080d 0%, #0d0407 100%);
+            border: 2px solid var(--gold-primary);
+            border-radius: 20px;
+            padding: 40px 30px;
+            position: relative;
+        }
+
+        .letter-paper {
+            background: rgba(255, 248, 220, 0.05);
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            border-radius: 12px;
+            padding: 25px;
+            position: relative;
+            font-family: var(--font-sans);
+            line-height: 1.8;
+            color: #f1e4c3;
+        }
+
+        .stamp-icon {
+            position: absolute;
+            top: 20px;
+            right: 25px;
+            border: 2px dashed var(--gold-primary);
+            padding: 8px 12px;
+            border-radius: 6px;
+            color: var(--gold-primary);
+            font-size: 0.8rem;
+            transform: rotate(8deg);
+        }
+
+        /* Botones dorados premium */
+        .btn-gold {
+            background: linear-gradient(135deg, #d4af37 0%, #b8860b 100%);
+            color: #0d0006;
+            font-weight: 700;
+            border: none;
+            border-radius: 50px;
+            padding: 12px 30px;
+            box-shadow: 0 4px 15px rgba(212, 175, 55, 0.4);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-gold::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: rgba(255, 255, 255, 0.2);
+            transform: rotate(30deg) scale(0);
+            transition: transform 0.5s ease;
+        }
+
+        .btn-gold:hover::after {
+            transform: rotate(30deg) scale(1);
+        }
+
+        .btn-gold:hover {
+            background: linear-gradient(135deg, #ffd700 0%, #d4af37 100%);
+            color: #000;
+            box-shadow: 0 6px 25px rgba(212, 175, 55, 0.7);
+            transform: translateY(-2px);
+        }
+
+        /* Luces Navideñas Superiores */
+        .lights-string {
+            display: flex;
+            justify-content: space-between;
+            padding: 0;
+            margin: 0;
+            list-style: none;
+            position: relative;
+            top: -10px;
+            width: 100%;
+            z-index: 10;
+        }
+
+        .light-bulb {
+            width: 14px;
+            height: 22px;
+            border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+            position: relative;
+            animation: bulbGlow 1.8s infinite ease-in-out alternate;
+            cursor: pointer;
+        }
+
+        .light-bulb::before {
+            content: "";
+            position: absolute;
+            top: -4px;
+            left: 3px;
+            width: 8px;
+            height: 5px;
+            background: #444;
+            border-radius: 2px;
+        }
+
+        .light-bulb.red { background: #ff2a3f; box-shadow: 0 5px 15px #ff2a3f; animation-delay: 0s; }
+        .light-bulb.gold { background: #ffd700; box-shadow: 0 5px 15px #ffd700; animation-delay: 0.4s; }
+        .light-bulb.green { background: #2ecc71; box-shadow: 0 5px 15px #2ecc71; animation-delay: 0.8s; }
+        .light-bulb.blue { background: #3498db; box-shadow: 0 5px 15px #3498db; animation-delay: 1.2s; }
+
+        @keyframes bulbGlow {
+            0% { opacity: 0.3; transform: scale(0.9); }
+            100% { opacity: 1; transform: scale(1.1); filter: brightness(1.3); }
+        }
+
+        /* Árbol Navideño Interactivo SVG */
+        .tree-container {
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .star-top {
+            fill: #ffd700;
+            filter: drop-shadow(0 0 12px #ffd700);
+            cursor: pointer;
+            transition: transform 0.3s ease, filter 0.3s ease;
+        }
+
+        .star-top:hover {
+            transform: scale(1.2) rotate(15deg);
+            filter: drop-shadow(0 0 25px #ffffff);
+        }
+
+        .tree-ornament {
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .tree-ornament:hover {
+            transform: scale(1.4);
+            filter: brightness(1.5) drop-shadow(0 0 8px #ffffff);
+        }
+
+        /* Regalos Mágicos */
+        .gift-box {
+            position: relative;
+            cursor: pointer;
+            transition: all 0.4s ease;
+        }
+
+        .gift-card-inner {
+            background: radial-gradient(circle, rgba(180, 20, 40, 0.8) 0%, rgba(90, 5, 15, 0.9) 100%);
+            border: 2px solid var(--gold-primary);
+            border-radius: 16px;
+            padding: 25px 15px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .gift-ribbon-v {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 20px;
+            height: 100%;
+            background: linear-gradient(90deg, #ffd700, #b8860b);
+            box-shadow: 0 0 5px rgba(0,0,0,0.5);
+        }
+
+        .gift-ribbon-h {
+            position: absolute;
+            top: 50%;
+            left: 0;
+            transform: translateY(-50%);
+            width: 100%;
+            height: 20px;
+            background: linear-gradient(180deg, #ffd700, #b8860b);
+            box-shadow: 0 0 5px rgba(0,0,0,0.5);
+        }
+
+        .gift-icon {
+            font-size: 2.8rem;
+            color: #fff;
+            position: relative;
+            z-index: 3;
+            text-shadow: 0 4px 10px rgba(0,0,0,0.5);
+            transition: transform 0.3s ease;
+        }
+
+        .gift-box:hover .gift-icon {
+            transform: scale(1.25) rotate(-8deg);
+        }
+
+        .gift-box:hover {
+            transform: translateY(-8px) scale(1.03);
+        }
+
+        /* Modal Personalizado */
+        .modal-content {
+            background: var(--bg-ruby);
+            border: 2px solid var(--gold-primary);
+            border-radius: 20px;
+            color: #fff;
+            box-shadow: 0 0 40px rgba(212, 175, 55, 0.4);
+        }
+
+        .modal-header {
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        /* Control de Música de Ambiente */
+        .music-btn {
+            position: fixed;
+            bottom: 25px;
+            right: 25px;
+            z-index: 100;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #d4af37, #8b0000);
+            border: 2px solid var(--gold-light);
+            color: #fff;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .music-btn:hover {
+            transform: scale(1.1) rotate(15deg);
+            box-shadow: 0 8px 25px rgba(212, 175, 55, 0.8);
+        }
+
+        .music-btn.playing {
+            animation: pulseGlow 1.5s infinite alternate;
+        }
+
+        @keyframes pulseGlow {
+            0% { box-shadow: 0 0 10px var(--gold-primary); }
+            100% { box-shadow: 0 0 30px var(--ruby-bright), 0 0 15px var(--gold-primary); }
+        }
+
+        /* Tarjeta Creada Dinámicamente */
+        #cardPreview {
+            background: linear-gradient(145deg, #25050b, #100205);
+            border: 2px dashed var(--gold-primary);
+            border-radius: 15px;
+            padding: 25px;
+            position: relative;
+        }
+
+        .glow-effect {
+            animation: textPulse 3s ease-in-out infinite alternate;
+        }
+
+        @keyframes textPulse {
+            0% { text-shadow: 0 0 10px rgba(212, 175, 55, 0.4); }
+            100% { text-shadow: 0 0 25px rgba(255, 215, 0, 0.9), 0 0 35px rgba(255, 42, 63, 0.6); }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Canvas para Nieve Dinámica -->
+    <canvas id="snowCanvas"></canvas>
+
+    <!-- Serie de Luces Navideñas -->
+    <ul class="lights-string" id="lightsString"></ul>
+
+    <div class="container main-container py-5">
+
+        <!-- HEADER / HERO SECTION -->
+        <header class="text-center my-4">
+            <span class="badge rounded-pill px-3 py-2 mb-3" style="background: rgba(212,175,55,0.15); border: 1px solid var(--gold-primary); color: var(--gold-light);">
+                ✨ Experiencia Navideña de Alexys
+            </span>
+            <h1 class="display-3 title-gold fw-bold mb-2 glow-effect">¡Feliz Navidad!</h1>
+            <p class="text-cursive mb-3">Que la magia llene tu hogar de Paz, Amor y Alegría</p>
+            <p class="lead text-light opacity-75 max-w-600 mx-auto" style="max-width: 650px;">
+                Toca los elementos de esta tarjeta espacial para activar campanitas, descubrir deseos ocultos y crear tu propia dedicatoria festiva.
+            </p>
+        </header>
+
+        <!-- SECCIÓN PRINCIPAL: ÁRBOL & DEDICATORIA GENERATOR -->
+        <div class="row g-4 my-4 align-items-center">
+            
+            <!-- Columna Árbol de Navidad Interactivo -->
+            <div class="col-lg-6 text-center">
+                <div class="glass-card p-4">
+                    <h3 class="title-gold h4 mb-3"><i class="fa-solid fa-tree me-2"></i> El Árbol de los Deseos</h3>
+                    <p class="small text-light opacity-75">Toca las esferas para hacerlas sonar y encender el árbol</p>
+                    
+                    <div class="tree-container my-3">
+                        <svg width="280" height="360" viewBox="0 0 300 400" id="interactiveTree">
+                            <!-- Tronco -->
+                            <rect x="135" y="320" width="30" height="60" rx="5" fill="#5c2c16" />
+                            <rect x="120" y="370" width="60" height="15" rx="4" fill="#3a1b0d" />
+
+                            <!-- Capas de Árbol -->
+                            <polygon points="150,50 260,160 210,160 270,240 220,240 280,330 20,330 80,240 30,240 90,160 40,160" 
+                                     fill="url(#treeGradient)" filter="drop-shadow(0px 10px 15px rgba(0,0,0,0.5))"/>
+
+                            <!-- Gradiente de Árbol -->
+                            <defs>
+                                <linearGradient id="treeGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" stop-color="#1b4d2e" />
+                                    <stop offset="50%" stop-color="#0f331d" />
+                                    <stop offset="100%" stop-color="#081f11" />
+                                </linearGradient>
+                            </defs>
+
+                            <!-- Estrella Principal -->
+                            <polygon class="star-top" id="topStar" points="150,15 158,35 180,35 162,48 168,70 150,55 132,70 138,48 120,35 142,35" onclick="triggerStarEffect()"/>
+
+                            <!-- Esferas Navideñas Interactivas -->
+                            <circle class="tree-ornament" cx="150" cy="110" r="10" fill="#ff2a3f" onclick="playOrnamentBell(523.25, this)"/>
+                            <circle class="tree-ornament" cx="110" cy="170" r="11" fill="#ffd700" onclick="playOrnamentBell(659.25, this)"/>
+                            <circle class="tree-ornament" cx="190" cy="180" r="10" fill="#3498db" onclick="playOrnamentBell(783.99, this)"/>
+                            <circle class="tree-ornament" cx="80"  cy="250" r="12" fill="#e74c3c" onclick="playOrnamentBell(880.00, this)"/>
+                            <circle class="tree-ornament" cx="150" cy="230" r="11" fill="#ffd700" onclick="playOrnamentBell(987.77, this)"/>
+                            <circle class="tree-ornament" cx="220" cy="260" r="12" fill="#2ecc71" onclick="playOrnamentBell(1046.50, this)"/>
+                            <circle class="tree-ornament" cx="115" cy="300" r="13" fill="#9b59b6" onclick="playOrnamentBell(1174.66, this)"/>
+                            <circle class="tree-ornament" cx="185" cy="300" r="13" fill="#e67e22" onclick="playOrnamentBell(1318.51, this)"/>
+                        </svg>
+                    </div>
+
+                    <button class="btn btn-gold btn-sm mt-2" onclick="playJingleBellTune()">
+                        <i class="fa-solid fa-music me-2"></i> Tocar Melodía Dulce
+                    </button>
+                </div>
+            </div>
+
+            <!-- Columna Carta Navideña Especial -->
+            <div class="col-lg-6 text-center">
+                <div class="glass-card p-4">
+                    <h3 class="title-gold h4 mb-3"><i class="fa-solid fa-envelope-open-text me-2"></i> Carta Navideña Especial</h3>
+                    <p class="small text-light opacity-75 mb-4">Haz clic en el sello para desplegar un mensaje guardado en el corazón de la Navidad.</p>
+
+                    <div class="envelope-wrapper mx-auto my-3" style="max-width: 380px;" onclick="openSpecialLetter()">
+                        <div class="envelope-card">
+                            <div class="envelope-seal">
+                                <i class="fa-solid fa-stamp"></i>
+                            </div>
+                            <h4 class="text-gold h5 mb-2">Carta de Nochebuena</h4>
+                            <p class="text-cursive fs-4 mb-2">Para una persona muy especial</p>
+                            <span class="badge rounded-pill bg-danger px-3 py-2">
+                                <i class="fa-solid fa-heart me-1"></i> Abrir Mensaje
+                            </span>
+                        </div>
+                    </div>
+
+                    <p class="small text-gold opacity-75 mt-3 mb-0">✨ Contiene buenos deseos y espíritu de paz</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECCIÓN DE REGALOS MÁGICOS -->
+        <section class="my-5">
+            <div class="text-center mb-4">
+                <h2 class="title-gold h3">Cajas de Regalos Mágicos</h2>
+                <p class="text-light opacity-75">Abre cada regalo para descubrir bendiciones especiales para esta Navidad</p>
+            </div>
+
+            <div class="row g-4">
+                <!-- Regalo 1 -->
+                <div class="col-md-4">
+                    <div class="gift-box" onclick="openGiftModal('Paz y Serenidad', 'Que la paz reine en tu hogar durante estas fiestas y que cada momento con tus seres queridos se convierta en un recuerdo inolvidable.', 'fa-hands-holding-child')">
+                        <div class="gift-card-inner">
+                            <div class="gift-ribbon-v"></div>
+                            <div class="gift-ribbon-h"></div>
+                            <i class="fa-solid fa-dove gift-icon"></i>
+                            <h4 class="h5 text-gold mt-3 position-relative" style="z-index: 3;">Abrazos & Paz</h4>
+                            <span class="badge bg-danger position-relative" style="z-index: 3;">Toca para abrir</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Regalo 2 -->
+                <div class="col-md-4">
+                    <div class="gift-box" onclick="openGiftModal('Prosperidad & Éxito', 'Que el año que se aproxima esté colmado de nuevos proyectos triunfales, abundante salud y bendiciones para toda tu familia.', 'fa-star')">
+                        <div class="gift-card-inner">
+                            <div class="gift-ribbon-v"></div>
+                            <div class="gift-ribbon-h"></div>
+                            <i class="fa-solid fa-gem gift-icon"></i>
+                            <h4 class="h5 text-gold mt-3 position-relative" style="z-index: 3;">Prosperidad</h4>
+                            <span class="badge bg-danger position-relative" style="z-index: 3;">Toca para abrir</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Regalo 3 -->
+                <div class="col-md-4">
+                    <div class="gift-box" onclick="openGiftModal('Amor Incondicional', 'El mayor regalo de la Navidad es la presencia de una familia feliz y amigos verdaderos. ¡Gracias por formar parte de esta historia!', 'fa-heart')">
+                        <div class="gift-card-inner">
+                            <div class="gift-ribbon-v"></div>
+                            <div class="gift-ribbon-h"></div>
+                            <i class="fa-solid fa-heart-pulse gift-icon"></i>
+                            <h4 class="h5 text-gold mt-3 position-relative" style="z-index: 3;">Amor y Alegría</h4>
+                            <span class="badge bg-danger position-relative" style="z-index: 3;">Toca para abrir</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- FOOTER -->
+        <footer class="text-center py-4 border-top border-secondary opacity-75 mt-5">
+            <p class="mb-0 text-light small">
+                © Feliz Navidad. Creado con amor festivo y luz. 
+                <span class="text-gold">✨ ¡Felices Fiestas! ✨</span>
+            </p>
+        </footer>
+
+    </div>
+
+    <!-- Botón Flotante para Sonido / Música -->
+    <button class="music-btn" id="audioToggleBtn" title="Activar/Desactivar Sonido Navideño" onclick="toggleAtmosphereAudio()">
+        <i class="fa-solid fa-bell" id="audioIcon"></i>
+    </button>
+
+    <!-- Modal para Regalos -->
+    <div class="modal fade" id="giftModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content text-center p-4">
+                <div class="modal-header border-0 pb-0 justify-content-end">
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <i class="fa-solid text-warning display-3" id="giftModalIcon"></i>
+                    </div>
+                    <h3 class="title-gold h3 mb-3" id="giftModalTitle">Título del Regalo</h3>
+                    <p class="text-light leading-relaxed fs-5" id="giftModalBody">
+                        Mensaje del regalo aquí...
+                    </p>
+                    <button class="btn btn-gold mt-4" data-bs-dismiss="modal">
+                        ¡Gracias! ❤️
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para Carta Especial Navideña -->
+    <div class="modal fade" id="letterModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content letter-modal-body text-start">
+                <div class="modal-header border-0 pb-0 justify-content-end">
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-2 p-md-4">
+                    <div class="letter-paper">
+                        <div class="stamp-icon">
+                            <i class="fa-solid fa-snowflake me-1"></i> Polo Norte
+                        </div>
+                        <h3 class="text-cursive text-gold display-5 mb-3">Querida Andrea Cisneros,</h3>
+                        
+                        <p class="mb-3 fs-5">
+                            En esta época mágica donde las luces iluminan el invierno y la calidez del hogar reconforta el alma, quiero dedicarte este humilde mensaje lleno de gratitud y buenos deseos.
+                        </p>
+                        
+                        <p class="mb-3 fs-5">
+                            En esta noche llena de amor quiero desearte una feliz navidad a ti y tu familia; se que hemos pasado por muchas cosas las cuales fueron causa de nuestra separacion.
+                            No quiero retroseder al pasado asi que te deso lo mejor, sigue disfrutando tus planes con las personas que amas y con tu compañero de vida si es que tienes verdad jajaja,
+                            no me metere en tus asusntos de vida personal pero pues ya sabes mis ocurrencias; siguela pasando increible y que todos tus deseos se cumplan.
+                        </p>
+
+                        <p class="mb-4 fs-5">
+                            Gracias por ser parte de este proceso y aventura, y si te hice esto es para agradeser el tiempo que estuviste conmigo en el cual te comentaba cual era mi proposito. Que el amor y la armonía abracen a tu familia hoy y siempre.
+                        </p>
+
+                        <div class="text-end mt-4">
+                            <span class="text-cursive fs-3 text-gold d-block">¡Feliz Navidad ♠!</span>
+                            <small class="text-light opacity-75">Con todo mi cariño Alexyto code✨</small>
+                        </div>
+                    </div>
+                    <div class="text-center mt-4">
+                        <button class="btn btn-gold px-4" data-bs-dismiss="modal">
+                            <i class="fa-solid fa-heart me-2"></i> Guardar en el Corazón
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap 5 JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- LÓGICA JAVASCRIPT DEL SISTEMA -->
+    <script>
+        /* ----------------------------------------------------
+         * 1. SISTEMA DE NIEVE DINÁMICA (CANVAS)
+         * ---------------------------------------------------- */
+        const canvas = document.getElementById('snowCanvas');
+        const ctx = canvas.getContext('2d');
+
+        let width = canvas.width = window.innerWidth;
+        let height = canvas.height = window.innerHeight;
+
+        window.addEventListener('resize', () => {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+        });
+
+        const numFlakes = 100;
+        const flakes = [];
+
+        class Flake {
+            constructor() {
+                this.reset();
+            }
+
+            reset() {
+                this.x = Math.random() * width;
+                this.y = Math.random() * -height;
+                this.vy = 1 + Math.random() * 2.5;
+                this.vx = (Math.random() - 0.5) * 1;
+                this.radius = 1 + Math.random() * 3.5;
+                this.alpha = 0.3 + Math.random() * 0.7;
+            }
+
+            update() {
+                this.y += this.vy;
+                this.x += this.vx;
+
+                if (this.y > height) {
+                    this.reset();
+                }
+            }
+
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(255, 255, 255, ${this.alpha})`;
+                ctx.shadowBlur = 8;
+                ctx.shadowColor = '#ffffff';
+                ctx.fill();
+            }
+        }
+
+        for (let i = 0; i < numFlakes; i++) {
+            flakes.push(new Flake());
+        }
+
+        function animateSnow() {
+            ctx.clearRect(0, 0, width, height);
+            flakes.forEach(flake => {
+                flake.update();
+                flake.draw();
+            });
+            requestAnimationFrame(animateSnow);
+        }
+        animateSnow();
+
+        /* ----------------------------------------------------
+         * 2. GENERACIÓN DE LUCES NAVIDEÑAS SUPERIORES
+         * ---------------------------------------------------- */
+        const lightsContainer = document.getElementById('lightsString');
+        const colors = ['red', 'gold', 'green', 'blue'];
+        const lightCount = Math.floor(window.innerWidth / 35);
+
+        for (let i = 0; i < lightCount; i++) {
+            const li = document.createElement('li');
+            const colorClass = colors[i % colors.length];
+            li.className = `light-bulb ${colorClass}`;
+            li.addEventListener('click', () => {
+                playBellSound(400 + (i * 40));
+            });
+            lightsContainer.appendChild(li);
+        }
+
+        /* ----------------------------------------------------
+         * 3. SINTETIZADOR WEB AUDIO API (CAMPANITAS NAVIDEÑAS)
+         * ---------------------------------------------------- */
+        let audioCtx = null;
+
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+        }
+
+        function playBellSound(freq = 880, duration = 1.2) {
+            initAudio();
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+
+            // Envolvente de sonido campana (Ataque rápido, decaimiento suave)
+            gain.gain.setValueAtTime(0, audioCtx.currentTime);
+            gain.gain.linearRampToValueAtTime(0.3, audioCtx.currentTime + 0.02);
+            gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
+
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            osc.start();
+            osc.stop(audioCtx.currentTime + duration);
+        }
+
+        /* Reproducir acordes melódicos navideños de acompañamiento */
+        function playChordNote(freq, duration = 2.5, volume = 0.08) {
+            initAudio();
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+
+            osc.type = 'triangle'; // Tono más cálido y suave
+            osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+
+            gain.gain.setValueAtTime(0, audioCtx.currentTime);
+            gain.gain.linearRampToValueAtTime(volume, audioCtx.currentTime + 0.3);
+            gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
+
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            osc.start();
+            osc.stop(audioCtx.currentTime + duration);
+        }
+
+        function playOrnamentBell(freq, element) {
+            playBellSound(freq, 1.5);
+
+            // Efecto visual al tocar esfera
+            element.style.transform = 'scale(1.6)';
+            setTimeout(() => {
+                element.style.transform = 'scale(1)';
+            }, 300);
+        }
+
+        function triggerStarEffect() {
+            playBellSound(1500, 2.0);
+            const star = document.getElementById('topStar');
+            star.style.fill = '#ffffff';
+            setTimeout(() => {
+                star.style.fill = '#ffd700';
+            }, 800);
+        }
+
+        /* Melodía Noche de Paz / Jingle Bells armonizada */
+        function playJingleBellTune() {
+            const notes = [
+                { f: 659.25, d: 0.35 }, { f: 659.25, d: 0.35 }, { f: 659.25, d: 0.7 },
+                { f: 659.25, d: 0.35 }, { f: 659.25, d: 0.35 }, { f: 659.25, d: 0.7 },
+                { f: 659.25, d: 0.35 }, { f: 783.99, d: 0.35 }, { f: 523.25, d: 0.4 }, { f: 587.33, d: 0.2 }, { f: 659.25, d: 1.0 }
+            ];
+
+            let delay = 0;
+            notes.forEach(note => {
+                setTimeout(() => {
+                    playBellSound(note.f, note.d * 1.8);
+                }, delay * 1000);
+                delay += note.d;
+            });
+        }
+
+        /* ----------------------------------------------------
+         * 4. REGALOS MÁGICOS Y CARTA
+         * ---------------------------------------------------- */
+        function openGiftModal(title, message, iconClass) {
+            playBellSound(900, 1.0);
+            document.getElementById('giftModalTitle').innerText = title;
+            document.getElementById('giftModalBody').innerText = message;
+            
+            const iconElem = document.getElementById('giftModalIcon');
+            iconElem.className = `fa-solid ${iconClass} text-warning display-3`;
+
+            const giftModal = new bootstrap.Modal(document.getElementById('giftModal'));
+            giftModal.show();
+        }
+
+        function openSpecialLetter() {
+            playBellSound(1046.50, 1.8);
+            const letterModal = new bootstrap.Modal(document.getElementById('letterModal'));
+            letterModal.show();
+        }
+
+        /* ----------------------------------------------------
+         * 5. AMBIENTE/MÚSICA POLIFÓNICA NAVIDEÑA
+         * ---------------------------------------------------- */
+        let isPlayingAtmosphere = false;
+        let atmosphereTimeout = null;
+
+        // Arreglo melódico envolvente estilo Noche de Paz + Campanitas
+        const ambientMelody = [
+            // { melodía, acordes }
+            { melody: 783.99, chord: [261.63, 329.63, 392.00], duration: 0.9 }, // G5 (C major chord)
+            { melody: 880.00, chord: [], duration: 0.4 },                      // A5
+            { melody: 783.99, chord: [], duration: 0.8 },                      // G5
+            { melody: 659.25, chord: [261.63, 329.63, 392.00], duration: 1.5 }, // E5
+            
+            { melody: 783.99, chord: [261.63, 329.63, 392.00], duration: 0.9 }, // G5
+            { melody: 880.00, chord: [], duration: 0.4 },                      // A5
+            { melody: 783.99, chord: [], duration: 0.8 },                      // G5
+            { melody: 659.25, chord: [261.63, 329.63, 392.00], duration: 1.5 }, // E5
+            
+            { melody: 1174.66, chord: [293.66, 349.23, 440.00], duration: 1.2 },// D6 (D minor chord)
+            { melody: 1174.66, chord: [], duration: 0.6 },                     // D6
+            { melody: 987.77, chord: [196.00, 246.94, 293.66], duration: 1.6 }, // B5 (G major chord)
+            
+            { melody: 1046.50, chord: [261.63, 329.63, 392.00], duration: 1.2 },// C6
+            { melody: 1046.50, chord: [], duration: 0.6 },                     // C6
+            { melody: 783.99, chord: [261.63, 329.63, 392.00], duration: 1.8 }  // G5
+        ];
+
+        let currentNoteIndex = 0;
+
+        function playNextAmbientStep() {
+            if (!isPlayingAtmosphere) return;
+
+            const noteData = ambientMelody[currentNoteIndex % ambientMelody.length];
+
+            // Tocar campana de la melodía principal
+            playBellSound(noteData.melody, 2.2);
+
+            // Tocar acorde suave de acompañamiento en triángulo
+            if (noteData.chord && noteData.chord.length > 0) {
+                noteData.chord.forEach(freq => {
+                    playChordNote(freq, 3.0, 0.05);
+                });
+            }
+
+            currentNoteIndex++;
+            atmosphereTimeout = setTimeout(playNextAmbientStep, noteData.duration * 1000);
+        }
+
+        function toggleAtmosphereAudio() {
+            const btn = document.getElementById('audioToggleBtn');
+            const icon = document.getElementById('audioIcon');
+
+            if (!isPlayingAtmosphere) {
+                isPlayingAtmosphere = true;
+                btn.classList.add('playing');
+                icon.className = 'fa-solid fa-volume-high';
+                currentNoteIndex = 0;
+                playNextAmbientStep();
+            } else {
+                isPlayingAtmosphere = false;
+                btn.classList.remove('playing');
+                icon.className = 'fa-solid fa-bell';
+                if (atmosphereTimeout) clearTimeout(atmosphereTimeout);
+            }
+        }
+    </script>
+</body>
+</html>
